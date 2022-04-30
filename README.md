@@ -25,3 +25,11 @@ In terms of software, we will be utilising:
 Essentially, the RFID reader will be connected to the microcontroller using SPI. When a tag is read, its ID will be then used to query the database on Thinkspeak, which will be reached using the Wifi module. That API request will return the data related to that element, be it a patient, a device or a doctor. Once that data is returned, it will be sent to the Cellphone using the HC-06 bluetooth module. Moreover, we will be keeping track of the frequency of accessing the different elements, their maintenance status, etc. Furthermore, actions will be taken when necessary. For example, notification messages can be utilised when a medical equipment reaches its maintenance deadline. An initial block diagram of the system design can be found below:
 
 ![ES-Project-Block-Diagram drawio (4)](https://user-images.githubusercontent.com/57135988/164934623-6baf4c5f-a7db-45e4-a910-724c485d3158.png)
+
+
+# First Prototype
+For the stage, we made a slight modification which is using ESP32 instead of ESP-8266. We were not able to find ESP-8266 available so we decided to use ESP32 instead because it provides pretty much the same functionality (connecting to Wifi and send/receive from the cloud). We also decided to change our cloud platform to be Firebase instead of Thinkspeak. We realised that Thinkspeak is supported the most with monitoring and/or recording data into the cloud but it is not very well suited for a database-like system. Instead, we will be using Firebase as it has an available dataset feature that would allow us to read and/or write to the database using our microcontroller.
+
+By this stage, we managed to setup ESP32 to connect to Wifi as well as reach Firebase. We created a datastore on Firebase that we will be accessing and an example of accessing a present document is shown below.
+
+For the next prototype, we hope we will successfully send the data read from Firebase to the Nucleoboard using UART and from the Nucleoboard, we will send that data to a mobile phone using a UART-connected Bluetooth module 
