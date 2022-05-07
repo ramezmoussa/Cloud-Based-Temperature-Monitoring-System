@@ -25,6 +25,12 @@
 #define API_KEY "APIKEY"
 #define DATABASE_URL "DATABASEURL" 
 
+
+#define RXD2 16
+#define TXD2 17
+
+int incomingByte = 0; // for incoming serial data
+
 // Firebase
 FirebaseData fbdo;
 FirebaseAuth auth;
@@ -37,6 +43,8 @@ String stringValue;
 bool signupOK = false;
 
 void setup() {
+  Serial2.begin(9600, SERIAL_8N1, RXD2, TXD2);
+
   Serial.begin(115200);     // Connect to the serial terminal for printing
   WiFi.begin(WIFI_SSID, WIFI_PASSWORD); // Connect to Wifi if possible
   Serial.print("Connecting to Wi-Fi");
@@ -67,54 +75,65 @@ void setup() {
 
   Firebase.begin(&config, &auth);
   Firebase.reconnectWiFi(true);
+  Serial2.flush();
+  delay(1000);
 }
 
-// Superloop
+
 void loop() {
-  // Connect to Firebase
   if (Firebase.ready() && signupOK && (millis() - sendDataPrevMillis > 15000 || sendDataPrevMillis == 0)) {
     sendDataPrevMillis = millis();
-    // Get the fields from Firebase Realtime Database
-    for(int i = 1; i < 4; i ++)
-    {
-        char getTypeBuf [100] = {0};
-        sprintf(getTypeBuf, "/%d/type", i);
-        
-        char getNameBuf [100] = {0};
-        sprintf(getNameBuf, "/%d/name", i);
+    
+      if (Serial2.available() > 0) {
+      // read the incoming byte:
+      String i = Serial2.readString();
+      
+      char receivedMessage [100] = {0};
+      sprintf(receivedMessage, "Data received from nucleo board: %s", i);
+      Serial.println(receivedMessage);
+      Serial.println("Now querying the firebase database");
+      //String i = "";
+      //i += c;
+      //int i = myByte-48;
+      // prints the received data
 
-        char idMessage [100] = {0};
-        sprintf(idMessage, "ID: %d", i);
-        Serial.println(idMessage);
-        
-        if (Firebase.RTDB.getString(&fbdo, getTypeBuf)) {
-          if (fbdo.dataType() == "string") {
-            stringValue = fbdo.stringData();
-            
-            char typeMessage [100] = {0};
-            sprintf(typeMessage, "Type: %s", stringValue);
-            Serial.println(typeMessage);
-          }
-          }
-          else {
-            Serial.println(fbdo.errorReason());
-          }
+      char getTypeBuf [100] = {0};
+      sprintf(getTypeBuf, "/%s/type", i);
+      
+      char getNameBuf [100] = {0};
+      sprintf(getNameBuf, "/%s/name", i);
+
+      char idMessage [100] = {0};
+      sprintf(idMessage, "ID: %s", i);
+      Serial.println(idMessage);
+      if (Firebase.RTDB.getString(&fbdo, getTypeBuf)) {
+        if (fbdo.dataType() == "string") {
+          stringValue = fbdo.stringData();
+          
+          char typeMessage [100] = {0};
+          sprintf(typeMessage, "Type: %s", stringValue);
+          Serial.println(typeMessage);
+        }
+        }
+        else {
+          Serial.println(fbdo.errorReason());
+        }
 
 
-          if (Firebase.RTDB.getString(&fbdo, getNameBuf)) {
-          if (fbdo.dataType() == "string") {
-            stringValue = fbdo.stringData();
-            
-            char nameMessage [100] = {0};
-            sprintf(nameMessage, "Name: %s", stringValue);
-            Serial.println(nameMessage);
-          }
-          }
-          else {
-            Serial.println(fbdo.errorReason());
-          }
-          Serial.println("------------------------------------------------------------");
-    }
-     
+        if (Firebase.RTDB.getString(&fbdo, getNameBuf)) {
+        if (fbdo.dataType() == "string") {
+          stringValue = fbdo.stringData();
+          
+          char nameMessage [100] = {0};
+          sprintf(nameMessage, "Name: %s", stringValue);
+          Serial.println(nameMessage);
+          
+        }
+        }
+        else {
+          Serial.println(fbdo.errorReason());
+        }
+        Serial.println("------------------------------------------------------------");
+      }
   }
 }
