@@ -107,6 +107,11 @@ Finally, we integrated all the components with one another on a logical as well 
 
   
  # Demo
+https://drive.google.com/file/d/18jYKHunv-IRmolrnapk2w01kBi7utryA/view?usp=sharing
   
- 
+# References
+  https://randomnerdtutorials.com/esp32-firebase-realtime-database/
+  https://randomnerdtutorials.com/telegram-control-esp32-esp8266-nodemcu-outputs/
+  https://randomnerdtutorials.com/esp32-thingspeak-publish-arduino/
+  
  
